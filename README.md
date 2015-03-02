@@ -1,6 +1,6 @@
 # Block Steamer 1.0 rev2
 
-Steams anyblocks (Minecraft Mod)
+Steam anyblocks (Minecraft Mod)
 
 Required for Development
 ---
