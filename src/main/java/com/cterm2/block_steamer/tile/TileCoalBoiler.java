@@ -16,6 +16,8 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 	private ItemStack stack;
 	private int lastBurnTime, maxBurnTime;
 
+	private TileTank connectedTank = null;
+
 	// Data ReadWrite
 	@Override
 	public void writeToNBT(NBTTagCompound tag)
@@ -65,6 +67,26 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 		this.readFromNBT(packet.func_148857_g());
 	}
 
+	// TileConnection
+	public void updateTileConnection()
+	{
+		System.out.println("Checking tile connection...");
+
+		TileEntity tent_u = this.worldObj.getTileEntity(this.xCoord,
+			this.yCoord + 1, this.zCoord);
+		if(tent_u != null && tent_u instanceof TileTank)
+		{
+			// currenly tanks can use only in this mod
+			System.out.println("Connection established.");
+			this.connectedTank = (TileTank)tent_u;
+		}
+		else
+		{
+			System.out.println("Tile not found.");
+			this.connectedTank = null;
+		}
+	}
+
 	// IInventory implementation
 	@Override
 	public void openInventory(){}
@@ -108,15 +130,19 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 	@Override
 	public void setInventorySlotContents(int index, ItemStack stack)
 	{
-		if(stack.stackSize >= this.getInventoryStackLimit())
+		if(stack != null)
 		{
-			stack.stackSize = this.getInventoryStackLimit();
+			if(stack.stackSize >= this.getInventoryStackLimit())
+			{
+				stack.stackSize = this.getInventoryStackLimit();
+			}
 		}
 
 		if(index == 0)
 		{
 			this.stack = stack;
-			if(this.stack.stackSize <= 0) this.stack = null;
+			if(this.stack != null &&
+				this.stack.stackSize <= 0) this.stack = null;
 		}
 	}
 
