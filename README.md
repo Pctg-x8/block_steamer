@@ -19,6 +19,8 @@ How to run
 
 on Linux(client testing):
 > ./gradlew runClient
+
 or
+
 > make run
 
