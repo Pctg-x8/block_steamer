@@ -20,7 +20,7 @@ public class BlockCoalBoiler extends BlockContainer
 		super(Material.rock);
 	
 		this.setStepSound(soundTypeStone);
-		this.setBlockName("coalBoiler");
+		this.setBlockName("block_steamer:coalBoiler");
 	}
 
 	@Override

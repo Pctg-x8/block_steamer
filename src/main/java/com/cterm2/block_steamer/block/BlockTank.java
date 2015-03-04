@@ -29,7 +29,7 @@ public class BlockTank extends BlockContainer
 	{
 		super(Material.glass);
 		
-		this.setBlockName("tank");
+		this.setBlockName("block_steamer:tank");
 		this.setBlockBounds(ShrinkLevel, 0.0f, ShrinkLevel,
 				1.0f - ShrinkLevel, 1.0f, 1.0f - ShrinkLevel);
 	}
