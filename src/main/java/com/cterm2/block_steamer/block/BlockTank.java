@@ -80,7 +80,7 @@ public class BlockTank extends BlockContainer
 	@Override
 	public int getRenderType()
 	{
-		return BlockSteamer.proxy.getRenderType(this.getClass());
+		return BlockSteamer.proxy.getRenderType(this);
 	}
 }
 

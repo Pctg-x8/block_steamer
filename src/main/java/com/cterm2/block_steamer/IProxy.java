@@ -6,6 +6,6 @@ import net.minecraft.block.*;
 public interface IProxy
 {
 	public void registerRenderer();
-	public int getRenderType(Class<? extends Block> block_class);
+	public int getRenderType(Object block_class);
 }
 

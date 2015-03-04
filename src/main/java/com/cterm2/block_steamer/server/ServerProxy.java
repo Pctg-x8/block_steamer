@@ -8,7 +8,7 @@ import com.cterm2.block_steamer.*;
 public class ServerProxy implements IProxy
 {
 	public void registerRenderer(){}
-	public int getRenderType(Class<? extends Block> block_class)
+	public int getRenderType(Object block_class)
 	{
 		return 0;
 	}

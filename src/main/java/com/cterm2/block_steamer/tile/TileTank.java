@@ -61,7 +61,25 @@ public class TileTank extends TileEntity implements IFluidHandler
 	{
 		this.readFromNBT(packet.func_148857_g());
 	}
-	
+
+	// export
+	public IIcon getFluidStaticIcon()
+	{
+		if(this.tank.getFluid() == null ||
+			this.tank.getFluid().getFluid() == null) return null;
+		return this.tank.getFluid().getFluid().getStillIcon();
+	}
+	public IIcon getFluidFlowingIcon()
+	{
+		if(this.tank.getFluid() == null ||
+			this.tank.getFluid().getFluid() == null) return null;
+		return this.tank.getFluid().getFluid().getFlowingIcon();
+	}
+	public double getAmountPercent()
+	{
+		return (double)this.tank.getFluidAmount() / (double)Capacity;
+	}
+
 	// Item Activation
 	private void outputTileInformation(EntityPlayer player)
 	{
@@ -120,6 +138,8 @@ public class TileTank extends TileEntity implements IFluidHandler
 
 			// update
 			this.markDirty();
+			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord,
+				this.zCoord);
 			return;
 		}
 
@@ -174,6 +194,8 @@ public class TileTank extends TileEntity implements IFluidHandler
 
 			// update
 			this.markDirty();
+			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord,
+				this.zCoord);
 			return;
 		}
 		
