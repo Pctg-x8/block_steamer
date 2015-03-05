@@ -44,7 +44,7 @@ public class BlockSteamer
 		serverSide="com.cterm2.block_steamer.server.ServerProxy")
 	public static IProxy proxy;
 
-	public Block blockCoalBoiler, blockTank;
+	public Block blockCoalBoiler, blockTank, blockSteamMachine;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
@@ -54,9 +54,11 @@ public class BlockSteamer
 		this.blockCoalBoiler = new BlockCoalBoiler()
 			.setCreativeTab(this.tab);
 		this.blockTank = new BlockTank().setCreativeTab(this.tab);
+		this.blockSteamMachine = new BlockSteamMachine().setCreativeTab(this.tab);
 
 		GameRegistry.registerBlock(this.blockCoalBoiler, "blockCoalBoiler");
 		GameRegistry.registerBlock(this.blockTank, "blockTank");
+		GameRegistry.registerBlock(this.blockSteamMachine, "blockSteamMachine");
 	}
 	@EventHandler
 	public void init(FMLInitializationEvent event)
@@ -65,6 +67,7 @@ public class BlockSteamer
 		GameRegistry.registerTileEntity(TileCoalBoiler.class,
 			"tileCoalBoiler");
 		GameRegistry.registerTileEntity(TileTank.class, "tileTank");
+		GameRegistry.registerTileEntity(TileSteamMachine.class, "tileSteamMachine");
 
 		NetworkRegistry.INSTANCE
 			.registerGuiHandler(this, new GuiHandler());

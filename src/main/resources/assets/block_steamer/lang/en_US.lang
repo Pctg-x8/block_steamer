@@ -3,3 +3,4 @@
 # Blocks
 tile.block_steamer:coalBoiler.name=Coal Boiler
 tile.block_steamer:tank.name=Tank
+tile.block_steamer:steamMachine.name=Steam Machine

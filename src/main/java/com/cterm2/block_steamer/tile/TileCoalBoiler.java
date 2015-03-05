@@ -1,5 +1,7 @@
 package com.cterm2.block_steamer.tile;
 
+// Basic way of getting heat, is Coal Boiler.
+
 import net.minecraft.tileentity.*;
 import net.minecraft.nbt.*;
 import net.minecraft.network.*;
@@ -13,10 +15,12 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 	private static final String keyCoalStack = "CoalStack";
 	private static final String keyLastBurnTime = "LastBurnTime";
 	private static final String keyMaxBurnTime = "MaxBurnTime";
+	
 	private ItemStack stack;
 	private int lastBurnTime, maxBurnTime;
 
 	private TileTank connectedTank = null;
+	private boolean checkedNeighborTile = false;
 
 	// Data ReadWrite
 	@Override
@@ -71,6 +75,12 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 	public void updateTileConnection()
 	{
 		System.out.println("Checking tile connection...");
+		if(this.worldObj == null)
+		{
+			System.out.println("Failed check. World is not setted.");
+			this.connectedTank = null;
+			return;
+		}
 
 		TileEntity tent_u = this.worldObj.getTileEntity(this.xCoord,
 			this.yCoord + 1, this.zCoord);
@@ -85,6 +95,19 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 			System.out.println("Tile not found.");
 			this.connectedTank = null;
 		}
+	}
+
+	@Override
+	public void updateEntity()
+	{
+		if(!this.checkedNeighborTile)
+		{
+			// check tile connection
+			this.updateTileConnection();
+			this.checkedNeighborTile = true;
+		}
+
+		super.updateEntity();
 	}
 
 	// IInventory implementation
