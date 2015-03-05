@@ -69,6 +69,18 @@ public class BlockTank extends BlockContainer
 	}
 
 	@Override
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
+	{
+		TileEntity t = world.getTileEntity(x, y, z);
+
+		if(t != null)
+		{
+			((TileTank)t).updateTileConnection();
+		}
+		super.onNeighborBlockChange(world, x, y, z, block);
+	}
+
+	@Override
 	public TileEntity createNewTileEntity(World w, int meta)
 	{
 		return new TileTank();

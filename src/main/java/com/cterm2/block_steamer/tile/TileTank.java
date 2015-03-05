@@ -13,6 +13,8 @@ import net.minecraft.network.*;
 import net.minecraft.network.play.server.*;
 import net.minecraft.nbt.*;
 
+import com.cterm2.block_steamer.tile.*;
+
 public class TileTank extends TileEntity implements IFluidHandler
 {
 	private static final String KeyTank = "Tank";
@@ -20,6 +22,8 @@ public class TileTank extends TileEntity implements IFluidHandler
 		= FluidContainerRegistry.BUCKET_VOLUME * 16;
 
 	protected FluidTank tank = new FluidTank(Capacity);
+	private TileSteamMachine connectedTile = null;
+	private boolean checkedConnectedTile = false;
 
 	// Data ReadWrite
 	@Override
@@ -60,6 +64,40 @@ public class TileTank extends TileEntity implements IFluidHandler
 		S35PacketUpdateTileEntity packet)
 	{
 		this.readFromNBT(packet.func_148857_g());
+	}
+
+	public void updateTileConnection()
+	{
+		System.out.println("Updating tile connection...");
+
+		if(this.worldObj == null)
+		{
+			System.out.println("Failed update connection. World is not setted.");
+			this.connectedTile = null;
+			return;
+		}
+
+		TileEntity t = this.worldObj.getTileEntity(this.xCoord, this.yCoord + 1, this.zCoord);
+		if(t != null)
+		{
+			System.out.println("Connection established.");
+			this.connectedTile = (TileSteamMachine)t;
+		}
+		else
+		{
+			System.out.println("Tile not found.");
+			this.connectedTile = null;
+		}
+	}
+	
+	@Override
+	public void updateEntity()
+	{
+		if(!this.checkedConnectedTile)
+		{
+			this.updateTileConnection();
+			this.checkedConnectedTile = true;
+		}
 	}
 
 	// export

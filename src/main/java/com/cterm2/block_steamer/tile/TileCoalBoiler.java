@@ -15,9 +15,11 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 	private static final String keyCoalStack = "CoalStack";
 	private static final String keyLastBurnTime = "LastBurnTime";
 	private static final String keyMaxBurnTime = "MaxBurnTime";
-	
+	private static final String keyTemperature = "CurrentTemperature";
+
 	private ItemStack stack;
 	private int lastBurnTime, maxBurnTime;
+	private double currentTemperature = 20;
 
 	private TileTank connectedTank = null;
 	private boolean checkedNeighborTile = false;
@@ -36,6 +38,7 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 		}
 		tag.setInteger(keyLastBurnTime, this.lastBurnTime);
 		tag.setInteger(keyMaxBurnTime, this.maxBurnTime);
+		tag.setDouble(keyTemperature, this.currentTemperature);
 	}
 	@Override
 	public void readFromNBT(NBTTagCompound tag)
@@ -53,6 +56,9 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 		}
 		this.lastBurnTime = tag.getInteger(keyLastBurnTime);
 		this.maxBurnTime = tag.getInteger(keyMaxBurnTime);
+		this.currentTemperature = tag.getDouble(keyTemperature);
+		if(this.currentTemperature < 20) this.currentTemperature = 20;
+		if(this.currentTemperature > 200) this.currentTemperature = 200;
 	}
 
 	// Network Synchronize
@@ -109,6 +115,9 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 
 		super.updateEntity();
 	}
+
+	// export for gui rendering
+	public double getCurrentTemperature(){ return this.currentTemperature; }
 
 	// IInventory implementation
 	@Override
