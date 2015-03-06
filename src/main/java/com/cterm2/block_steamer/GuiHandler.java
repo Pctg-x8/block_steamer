@@ -25,6 +25,8 @@ public class GuiHandler implements IGuiHandler
 		{
 		case CoalBoiler:
 			return new ContainerCoalBoiler(player, (TileCoalBoiler)tent);
+		case SteamMachine:
+			return new ContainerSteamMachine(player, (TileSteamMachine)tent);
 		default:
 			return null;
 		}
@@ -41,6 +43,8 @@ public class GuiHandler implements IGuiHandler
 		{
 		case CoalBoiler:
 			return new ContainerCoalBoilerGui(player, (TileCoalBoiler)tent);
+		case SteamMachine:
+			return new ContainerSteamMachineGui(player, (TileSteamMachine)tent);
 		default:
 			return null;
 		}

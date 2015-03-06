@@ -5,6 +5,7 @@ package com.cterm2.block_steamer.enums;
 public enum EnumGuiIdentifier
 {
 	NullDialog,
-	CoalBoiler
+	CoalBoiler,
+	SteamMachine
 }
 

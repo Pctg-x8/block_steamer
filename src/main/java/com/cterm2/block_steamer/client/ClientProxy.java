@@ -20,10 +20,11 @@ public class ClientProxy implements IProxy
 		RenderingRegistry.registerBlockHandler(new BlockRendererTank());
 		ClientRegistry.bindTileEntitySpecialRenderer(
 			TileTank.class, new RendererTank());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileSteamMachine.class, new RendererSteamMachine());
 	}
 	public int getRenderType(Object block)
 	{
-		if(block instanceof BlockTank)
+		if(block instanceof BlockTank || block instanceof BlockSteamMachine)
 		{
 			return this.tankRenderType;
 		}
