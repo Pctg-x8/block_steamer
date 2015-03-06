@@ -9,6 +9,7 @@ import net.minecraft.network.play.server.*;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
 import net.minecraft.entity.player.*;
+import net.minecraftforge.fluids.*;
 
 public class TileCoalBoiler extends TileEntity implements ISidedInventory
 {
@@ -102,6 +103,59 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 			this.connectedTank = null;
 		}
 	}
+	private void consumeFuel()
+	{
+		if(this.stack == null) return;
+
+		if(FluidContainerRegistry.isContainer(this.stack))
+		{
+			ItemStack ret = FluidContainerRegistry.drainFluidContainer(this.stack);
+
+			this.stack = ret;
+		}
+		else
+		{
+			this.stack.stackSize--;
+			if(this.stack.stackSize <= 0) this.stack = null;
+		}
+	}
+	private boolean burn()
+	{
+		boolean updated = false;
+
+		if(this.lastBurnTime == 0)
+		{
+			// consume new fuel
+			this.lastBurnTime = this.maxBurnTime = 0;
+			if(TileEntityFurnace.isItemFuel(this.stack))
+			{
+				this.maxBurnTime = TileEntityFurnace.getItemBurnTime(this.stack);
+				this.lastBurnTime = this.maxBurnTime;
+				this.consumeFuel();
+				updated = true;
+			}
+		}
+		if(this.lastBurnTime > 0)
+		{
+			this.lastBurnTime--;
+			this.currentTemperature += this.currentTemperature / 700.0;
+			if(this.currentTemperature > 200.25) this.currentTemperature = 200.25;
+			updated = true;
+		}
+
+		return updated;
+	}
+	private boolean colder()
+	{
+		this.currentTemperature -= this.currentTemperature / 3000.0;
+		if(this.currentTemperature < 20) this.currentTemperature = 20;
+
+		return true;
+	}
+	private void transferHeat()
+	{
+		if(this.connectedTank != null) this.connectedTank.receiveHeat(this.currentTemperature);
+	}
 
 	@Override
 	public void updateEntity()
@@ -113,11 +167,25 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 			this.checkedNeighborTile = true;
 		}
 
+		boolean updated = this.burn();
+		boolean updated_2 = this.colder();
+		this.transferHeat();
+
+		if(updated || updated_2)
+		{
+			this.markDirty();
+		}
+
 		super.updateEntity();
 	}
 
 	// export for gui rendering
 	public double getCurrentTemperature(){ return this.currentTemperature; }
+	public double getBurnProgress()
+	{
+		if(this.maxBurnTime == 0) return 0.0;
+		return (double)this.lastBurnTime / (double)this.maxBurnTime;
+	}
 
 	// IInventory implementation
 	@Override

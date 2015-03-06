@@ -44,7 +44,11 @@ public class ContainerCoalBoilerGui extends GuiContainer
 		String inventory = StatCollector.translateToLocal("container.inventory");
 		String temperature = Integer.toString((int)this.tent.getCurrentTemperature()) + " C";
 		int titleWidth = this.fontRendererObj.getStringWidth(title);
-		double temperatureBaseHeight = 33.0 - 33.0 * ((this.tent.getCurrentTemperature() - 20) / 180.0);
+		double ct = this.tent.getCurrentTemperature();
+		if(20 < ct) ct = 20;
+		if(ct < 200) ct = 200;
+		double temperatureBaseHeight = 33.0 - 33.0 * ((ct - 20) / 180.0);
+		double burnFireHeight = this.tent.getBurnProgress() * 16.0;
 
 		this.fontRendererObj.drawString(title, (this.xSize - titleWidth) / 2, 6, 0x00404040);
 		this.fontRendererObj.drawString(temperature, 134, 44, 0x00404040);
@@ -53,6 +57,7 @@ public class ContainerCoalBoilerGui extends GuiContainer
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		this.mc.renderEngine.bindTexture(texture);
 		this.drawTexturedModalRect(104, (int)(21 - 3 + temperatureBaseHeight), 194, 16, 20, 7);
+		this.drawTexturedModalRect(76, (int)(21 + 16.0 - burnFireHeight), 194, (int)(16.0 - burnFireHeight), 16, (int)burnFireHeight);
 	}
 }
 

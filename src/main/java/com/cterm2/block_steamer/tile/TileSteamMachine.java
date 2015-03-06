@@ -176,7 +176,13 @@ public class TileSteamMachine extends TileEntity implements ISidedInventory
 	@Override
 	public boolean canInsertItem(int index, ItemStack stack, int side)
 	{
-		if(side == 1 && index == 0 && this.inputItems == null) return true;
+		if(side == 1 && index == 0)
+		{
+			if(this.inputItems == null) return true;
+			if(this.inputItems.getItem() == stack.getItem() &&
+				this.inputItems.getItemDamage() == stack.getItemDamage() &&
+				this.inputItems.stackSize < 64) return true;
+		}
 		return false;
 	}
 	@Override

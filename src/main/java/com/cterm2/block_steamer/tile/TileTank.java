@@ -18,12 +18,14 @@ import com.cterm2.block_steamer.tile.*;
 public class TileTank extends TileEntity implements IFluidHandler
 {
 	private static final String KeyTank = "Tank";
+	private static final String KeyEvaportationAmount = "PreciseEvaportationAmount";
 	private static final int Capacity
 		= FluidContainerRegistry.BUCKET_VOLUME * 16;
 
 	protected FluidTank tank = new FluidTank(Capacity);
 	private TileSteamMachine connectedTile = null;
 	private boolean checkedConnectedTile = false;
+	private double preciseEvaportationAmount = 0.0;
 
 	// Data ReadWrite
 	@Override
@@ -39,6 +41,7 @@ public class TileTank extends TileEntity implements IFluidHandler
 		{
 			this.tank = new FluidTank(Capacity);
 		}
+		this.preciseEvaportationAmount = tag.getDouble(KeyEvaportationAmount);
 	}
 	@Override
 	public void writeToNBT(NBTTagCompound tag)
@@ -48,6 +51,7 @@ public class TileTank extends TileEntity implements IFluidHandler
 		NBTTagCompound tag_tank = new NBTTagCompound();
 		this.tank.writeToNBT(tag_tank);
 		tag.setTag(KeyTank, tag_tank);
+		tag.setDouble(KeyEvaportationAmount, this.preciseEvaportationAmount);
 	}
 
 	// Data Sync
@@ -87,6 +91,30 @@ public class TileTank extends TileEntity implements IFluidHandler
 		{
 			System.out.println("Tile not found.");
 			this.connectedTile = null;
+		}
+	}
+
+	public void receiveHeat(double temperature)
+	{
+		if(temperature >= 100)
+		{
+			this.preciseEvaportationAmount += (temperature / 200.0) * 4.0;
+			if(this.preciseEvaportationAmount >= 1.0)
+			{
+				int truncatedEvAmount = (int)this.preciseEvaportationAmount;
+				FluidStack drainedFluid = this.drain(ForgeDirection.UNKNOWN, truncatedEvAmount, false);
+
+				if(drainedFluid != null && drainedFluid.getFluid() != null && drainedFluid.getFluid() == FluidRegistry.WATER &&
+					drainedFluid.amount > 0)
+				{
+					drainedFluid = this.drain(ForgeDirection.UNKNOWN, truncatedEvAmount, true);
+					this.preciseEvaportationAmount -= (double)drainedFluid.amount;
+				}
+				else
+				{
+					this.preciseEvaportationAmount = 0.0;
+				}
+			}
 		}
 	}
 	
