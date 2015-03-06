@@ -10,6 +10,7 @@ import net.minecraft.inventory.*;
 import net.minecraft.item.*;
 import net.minecraft.entity.player.*;
 import net.minecraftforge.fluids.*;
+import com.cterm2.block_steamer.*;
 
 public class TileCoalBoiler extends TileEntity implements ISidedInventory
 {
@@ -185,6 +186,16 @@ public class TileCoalBoiler extends TileEntity implements ISidedInventory
 	{
 		if(this.maxBurnTime == 0) return 0.0;
 		return (double)this.lastBurnTime / (double)this.maxBurnTime;
+	}
+
+	// handler
+	public void handleBreak()
+	{
+		if(this.stack != null)
+		{
+			DropHelper.dropStackAsEntity(this.worldObj, this.xCoord, this.yCoord, this.zCoord, this.stack);
+			this.stack = null;
+		}
 	}
 
 	// IInventory implementation

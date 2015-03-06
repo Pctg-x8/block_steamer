@@ -45,8 +45,8 @@ public class ContainerCoalBoilerGui extends GuiContainer
 		String temperature = Integer.toString((int)this.tent.getCurrentTemperature()) + " C";
 		int titleWidth = this.fontRendererObj.getStringWidth(title);
 		double ct = this.tent.getCurrentTemperature();
-		if(20 < ct) ct = 20;
-		if(ct < 200) ct = 200;
+		if(20 > ct) ct = 20;
+		if(ct > 200) ct = 200;
 		double temperatureBaseHeight = 33.0 - 33.0 * ((ct - 20) / 180.0);
 		double burnFireHeight = this.tent.getBurnProgress() * 16.0;
 

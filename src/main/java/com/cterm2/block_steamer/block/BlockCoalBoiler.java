@@ -5,8 +5,11 @@ import net.minecraft.block.*;
 import net.minecraft.block.material.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
+import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.util.*;
+import net.minecraftforge.common.util.*;
+import net.minecraft.item.*;
 
 import com.cterm2.block_steamer.*;
 import com.cterm2.block_steamer.tile.*;
@@ -64,6 +67,38 @@ public class BlockCoalBoiler extends BlockContainer
 			((TileCoalBoiler)tent).updateTileConnection();
 		}
 		super.onNeighborBlockChange(world, x, y, z, block);
+	}
+
+	@Override
+	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase living, ItemStack stack)
+	{
+		int dir = MathHelper.floor_double((living.rotationYaw * 4.0 / 360.0) + 0.5) & 3;
+
+		switch(dir)
+		{
+		case 0:
+			world.setBlockMetadataWithNotify(x, y, z, ForgeDirection.NORTH.ordinal(), 0x02);
+			break;
+		case 1:
+			world.setBlockMetadataWithNotify(x, y, z, ForgeDirection.EAST.ordinal(), 0x02);
+			break;
+		case 2:
+			world.setBlockMetadataWithNotify(x, y, z, ForgeDirection.SOUTH.ordinal(), 0x02);
+			break;
+		case 3:
+			world.setBlockMetadataWithNotify(x, y, z, ForgeDirection.WEST.ordinal(), 0x02);
+			break;
+		}
+	}
+
+	@Override
+	public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+	{
+		TileEntity t = world.getTileEntity(x, y, z);
+
+		if(t != null) ((TileCoalBoiler)t).handleBreak();
+
+		super.breakBlock(world, x, y, z, block, meta);
 	}
 }
 
