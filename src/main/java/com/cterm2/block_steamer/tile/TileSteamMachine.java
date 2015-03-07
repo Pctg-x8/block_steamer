@@ -10,12 +10,29 @@ import net.minecraft.network.play.server.*;
 import net.minecraft.inventory.*;
 import net.minecraft.entity.player.*;
 
+import com.cterm2.block_steamer.*;
+
 public class TileSteamMachine extends TileEntity implements ISidedInventory
 {
 	private static final String KeyInput = "InputItems";
 	private static final String KeyOutput = "OutputItems";
+	private static final String KeyProgress = "Progress";
 
+	ItemStack prevInputItems = null;
 	ItemStack inputItems = null, outputItems = null;
+	ItemStack outputTarget = null;
+	double outputTargetRequiredSteam = -1;
+	double progress = 0;
+
+	public void checkRequiredUpdateTargets()
+	{
+		if(this.prevInputItems != null && this.inputItems != null && this.prevInputItems.getItem() == this.inputItems.getItem() &&
+			this.prevInputItems.getItemDamage() == this.inputItems.getItemDamage()) return;
+
+		if(this.inputItems == null) this.prevInputItems = null;
+		else this.prevInputItems = this.inputItems.copy();
+		this.updateTargets();
+	}
 	
 	// Data ReadWrite
 	@Override
@@ -39,6 +56,9 @@ public class TileSteamMachine extends TileEntity implements ISidedInventory
 		{
 			this.outputItems = null;
 		}
+		this.progress = tag.getDouble(KeyProgress);
+
+		this.checkRequiredUpdateTargets();
 	}
 	@Override
 	public void writeToNBT(NBTTagCompound tag)
@@ -57,6 +77,7 @@ public class TileSteamMachine extends TileEntity implements ISidedInventory
 			this.outputItems.writeToNBT(tag_output);
 			tag.setTag(KeyOutput, tag_output);
 		}
+		tag.setDouble(KeyProgress, this.progress);
 	}
 	
 	// Data Sync
@@ -71,6 +92,97 @@ public class TileSteamMachine extends TileEntity implements ISidedInventory
 	public void onDataPacket(NetworkManager manager, S35PacketUpdateTileEntity packet)
 	{
 		this.readFromNBT(packet.func_148857_g());
+	}
+
+	public void receiveSteam(double amount)
+	{
+		// System.out.println("received steam: " + amount + " mB");
+		if(amount <= 0) return;
+		if(this.outputTargetRequiredSteam < 0) return;
+		if(this.outputItems != null)
+		{
+			if(this.outputItems.stackSize + this.outputTarget.stackSize > this.getInventoryStackLimit()) return;
+			if(this.outputItems.getItem() != this.outputTarget.getItem()) return;
+		}
+
+		this.progress += amount;
+		if(this.progress >= this.outputTargetRequiredSteam)
+		{
+			this.progress -= this.outputTargetRequiredSteam;
+
+			// consume input
+			this.inputItems.stackSize--;
+			if(this.inputItems.stackSize <= 0) this.inputItems = null;
+
+			// produce output
+			if(this.outputItems == null)
+			{
+				this.outputItems = this.outputTarget.copy();
+			}
+			else
+			{
+				this.outputItems.stackSize += this.outputTarget.stackSize;
+			}
+			
+			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+		}
+
+		this.markDirty();
+	}
+	private void updateTargets()
+	{
+		// update target state
+		ItemStack po = this.outputTarget;
+
+		this.outputTarget = null;
+		this.outputTargetRequiredSteam = -1;
+
+		System.out.println("Update Target info...");
+
+		if(SteamerRecipe.isRegisteredInput(this.inputItems))
+		{
+			System.out.println("Find Recipe. Updated.");
+			this.outputTarget = SteamerRecipe.findOutput(this.inputItems);
+			this.outputTargetRequiredSteam = SteamerRecipe.getRequiredSteam(this.inputItems);
+			this.markDirty();
+		}
+		else
+		{
+			System.out.println("No found recipes.");
+		}
+
+		if(this.outputTarget == null || po == null || this.outputTarget.getItem() != po.getItem() || this.outputTarget.getItemDamage() != po.getItemDamage())
+		{
+			System.out.println("Recipe changed.");
+			this.progress = 0;
+			this.markDirty();
+		}
+	}
+
+	public double getProcessedPercentage()
+	{
+		if(this.outputTargetRequiredSteam < 0) return 0;
+		return this.progress / this.outputTargetRequiredSteam;
+	}
+	public Item getVisibleItem()
+	{
+		if(this.outputItems != null) return this.outputItems.getItem();
+		if(this.inputItems != null) return this.inputItems.getItem();
+		return null;
+	}
+
+	public void handleBreak()
+	{
+		if(this.inputItems != null)
+		{
+			DropHelper.dropStackAsEntity(this.worldObj, this.xCoord, this.yCoord, this.zCoord, this.inputItems);
+			this.inputItems = null;
+		}
+		if(this.outputItems != null)
+		{
+			DropHelper.dropStackAsEntity(this.worldObj, this.xCoord, this.yCoord, this.zCoord, this.outputItems);
+			this.outputItems = null;
+		}
 	}
 
 	/// IInventory ///
@@ -107,6 +219,7 @@ public class TileSteamMachine extends TileEntity implements ISidedInventory
 		{
 		case 0:
 			this.inputItems = null;
+			this.checkRequiredUpdateTargets();
 			break;
 		case 1:
 			this.outputItems = null;
@@ -135,6 +248,7 @@ public class TileSteamMachine extends TileEntity implements ISidedInventory
 				st_ret = sel.splitStack(count);
 				if(sel.stackSize <= 0) this.setInventorySlotContents(index, null);
 			}
+			this.checkRequiredUpdateTargets();
 			return st_ret;
 		}
 		return null;
@@ -153,6 +267,7 @@ public class TileSteamMachine extends TileEntity implements ISidedInventory
 		{
 		case 0:
 			this.inputItems = slotTo;
+			this.checkRequiredUpdateTargets();
 			break;
 		case 1:
 			this.outputItems = slotTo;

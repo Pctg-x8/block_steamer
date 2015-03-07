@@ -9,9 +9,9 @@ import cpw.mods.fml.relauncher.*;
 import cpw.mods.fml.common.registry.*;
 import cpw.mods.fml.common.network.*;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.init.Items;
+import net.minecraft.block.*;
+import net.minecraft.item.*;
+import net.minecraft.init.*;
 import net.minecraft.creativetab.CreativeTabs;
 import com.cterm2.block_steamer.block.*;
 import com.cterm2.block_steamer.tile.*;
@@ -73,6 +73,9 @@ public class BlockSteamer
 			.registerGuiHandler(this, new GuiHandler());
 
 		proxy.registerRenderer();
+
+		// Recipe Registration
+		SteamerRecipe.registerRecipe(new ItemStack(Blocks.dirt), new ItemStack(Blocks.clay));
 	}
 }
 

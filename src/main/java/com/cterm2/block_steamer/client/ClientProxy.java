@@ -18,8 +18,7 @@ public class ClientProxy implements IProxy
 	{
 		this.tankRenderType = RenderingRegistry.getNextAvailableRenderId();
 		RenderingRegistry.registerBlockHandler(new BlockRendererTank());
-		ClientRegistry.bindTileEntitySpecialRenderer(
-			TileTank.class, new RendererTank());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileTank.class, new RendererTank());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileSteamMachine.class, new RendererSteamMachine());
 	}
 	public int getRenderType(Object block)

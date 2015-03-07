@@ -69,5 +69,18 @@ public class BlockSteamMachine extends BlockContainer
 		if(side == 0 || side == 1) return this.tbTexture;
 		return this.sideTexture;
 	}
+
+	@Override
+	public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+	{
+		TileEntity t = world.getTileEntity(x, y, z);
+
+		if(t != null)
+		{
+			((TileSteamMachine)t).handleBreak();
+		}
+
+		super.breakBlock(world, x, y, z, block, meta);
+	}
 }
 
